@@ -1,28 +1,80 @@
+import Jama.Matrix;
+
 
 public class MatrixOperations 
 {
-	public static double[] getAvgRows(double[][] matrix, int n, int m)
+	public double[] getAvgRows(Matrix matrix)
 	{
-		//Vector<Double> vector = new Vector<Double>();
-		double vector[] = new double[n];
-		for(int i=0;i<n;i++)
+		int rows = matrix.getRowDimension();
+		int cols = matrix.getColumnDimension();
+		
+		double vector[] = new double[rows];
+		
+		for(int i=0;i<rows;i++)
 		{	
 			double sum = 0;
 			
-			for(int j=0; j<m;j++)
-				sum+=matrix[i][j];
+			for(int j=0; j<cols;j++)
+				sum+=matrix.get(i,j);
 			
-			vector[i] = sum/m;
+			vector[i] = sum/cols;
 		}
 		return vector;
 	}
 	
-	public static double[][] subtractAvgValues(double [][] matrix, double[] vector, int n, int m )
+	public double[] getAvgCols(Matrix matrix)
 	{
-		for(int i=0;i<n;i++)
-			for(int j=0; j<m;j++)
-				matrix[i][j]=matrix[i][j] - vector[n];
+		int rows = matrix.getRowDimension();
+		int cols = matrix.getColumnDimension();
+		
+		double vector[] = new double[cols];
+		
+		for(int i=0;i<cols;i++)
+		{	
+			double sum = 0;
+			
+			for(int j=0; j<rows;j++)
+				sum+=matrix.get(i,j);
+			
+			vector[i] = sum/rows;
+		}
+		return vector;
+	}
+	
+	public Matrix subtractAvgValues(Matrix matrix, double[] vector)
+	{
+		int rows = matrix.getRowDimension();
+		int cols = matrix.getColumnDimension();
+		
+		for(int i=0;i<rows;i++)
+			for(int j=0; j<cols;j++)
+				matrix.set(i,j,matrix.get(i,j) - vector[i]);
 		
 		return matrix;
+	}
+	
+	
+	public  Matrix covarianceMatrix(Matrix inputMatrix)
+	{
+		//int cols = inputMatrix.getColumnDimension();
+		
+		double[] means = getAvgCols(inputMatrix);
+		subtractAvgValues(inputMatrix, means);
+		
+		Matrix transposedMatrix = inputMatrix.transpose();
+		
+		Matrix resultMatrix = inputMatrix.times(transposedMatrix);
+		
+		int resMatrixCols = resultMatrix.getColumnDimension();
+		int resMatrixRows = resultMatrix.getRowDimension();
+		
+		for(int i=0; i<resMatrixCols; i++)
+			for(int j=0; j<resMatrixCols; j++)
+			{
+				double value = resultMatrix.get(i,j);
+				resultMatrix.set(i, j, value/resMatrixRows);
+			}
+				
+		return resultMatrix;
 	}
 }
