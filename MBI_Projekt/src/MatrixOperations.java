@@ -1,8 +1,27 @@
+import Jama.EigenvalueDecomposition;
 import Jama.Matrix;
 
 
 public class MatrixOperations 
 {
+	Matrix matrix;
+	
+	MatrixOperations(String fileName)
+	{
+		matrix = Utils.getInputCSVData(fileName);
+	}
+	
+	/*TODO*/
+	public Matrix computePCA()
+	{
+		Matrix finalMatrix = null;
+		Matrix m = covarianceMatrix(matrix);
+		EigenvalueDecomposition ed = m.eig();
+		
+		return finalMatrix;
+	}
+	
+	
 	public double[] getAvgRows(Matrix matrix)
 	{
 		int rows = matrix.getRowDimension();
@@ -34,7 +53,7 @@ public class MatrixOperations
 			double sum = 0;
 			
 			for(int j=0; j<rows;j++)
-				sum+=matrix.get(i,j);
+				sum+=matrix.get(j,i);
 			
 			vector[i] = sum/rows;
 		}
@@ -48,7 +67,7 @@ public class MatrixOperations
 		
 		for(int i=0;i<rows;i++)
 			for(int j=0; j<cols;j++)
-				matrix.set(i,j,matrix.get(i,j) - vector[i]);
+				matrix.set(i,j,matrix.get(i,j) - vector[j]);
 		
 		return matrix;
 	}
@@ -77,4 +96,24 @@ public class MatrixOperations
 				
 		return resultMatrix;
 	}
+	
+	public Matrix computeEigenValuesForCovMatrix(EigenvalueDecomposition ed)
+	{
+		return ed.getD();		
+	}
+	
+	public Matrix computeEigenVectorForCovMatrix(EigenvalueDecomposition ed)
+	{		
+		return ed.getV();		
+	}
+
+	public Matrix getMatrix() 
+	{
+		return matrix;
+	}
+
+	public void setMatrix(Matrix matrix) 
+	{
+		this.matrix = matrix;
+	}	
 }
