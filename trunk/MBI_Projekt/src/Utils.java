@@ -22,7 +22,7 @@ public class Utils
 			
 			while((line=bufferedReader.readLine()) != null)
 			{
-				String[] rowStr = line.split(" ");				
+				String[] rowStr = line.split(",");				
 				ArrayList<Double> row = new ArrayList<Double> ();
 				
 				for(int i=0; i<rowStr.length;i++)
