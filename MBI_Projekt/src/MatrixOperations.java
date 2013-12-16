@@ -1,3 +1,6 @@
+import java.util.ArrayList;
+import java.util.Collections;
+
 import Jama.EigenvalueDecomposition;
 import Jama.Matrix;
 
@@ -13,6 +16,13 @@ public class MatrixOperations {
 		Matrix finalMatrix = null;
 		Matrix m = covarianceMatrix(matrix);
 		EigenvalueDecomposition ed = m.eig();
+		return finalMatrix;
+	}
+
+	public Matrix computePCA2(double threshold) {
+		Matrix finalMatrix = null;
+		Matrix m = corelationMatrix(matrix);
+		ArrayList<EigenValue> eig = computeEigenValues(m);
 
 		return finalMatrix;
 	}
@@ -84,7 +94,7 @@ public class MatrixOperations {
 		return resultMatrix;
 	}
 
-	// inputMatrix -
+	// macierz sum iloczynów kolumn
 	public Matrix sumOfSquaredMatrix(Matrix inputMatrix) {
 		// srednie
 		double[] means = getAvgCols(inputMatrix);
@@ -94,22 +104,61 @@ public class MatrixOperations {
 		Matrix transposedMatrix = inputMatrix.transpose();
 		// mnozenie macierzy, w celu uzyskania macierzy sum kwadratów
 		Matrix resultMatrix = transposedMatrix.times(inputMatrix);
-		double n = (double)1 / (resultMatrix.getColumnDimension() - 1);
+		double n = (double) 1 / (resultMatrix.getColumnDimension() - 1);
 		return resultMatrix.times(n);
 	}
 
+	// wyznaczanie macierzy korelacji
 	public Matrix corelationMatrix(Matrix inputMatrix) {
 		Matrix sum = sumOfSquaredMatrix(inputMatrix);
 		int cols = sum.getColumnDimension();
 		Matrix resultMatrix = Matrix.identity(cols, cols);
-		for(int i = 0;i< cols;++i)
-			for(int j = 0;j< cols;++j)
-			{
-				if(i==j)
+		for (int i = 0; i < cols; ++i)
+			for (int j = 0; j < cols; ++j) {
+				if (i == j)
 					continue;
-				resultMatrix.set(i, j, sum.get(i, j)/Math.sqrt(sum.get(i, i)*sum.get(j,j)));
+				resultMatrix.set(
+						i,
+						j,
+						sum.get(i, j)
+								/ Math.sqrt(sum.get(i, i) * sum.get(j, j)));
 			}
 		return resultMatrix;
+	}
+
+	// wyznaczanie wartoœci i wektoró w³asnych
+	public ArrayList<EigenValue> computeEigenValues(Matrix m) {
+		double[] vals = m.eig().getRealEigenvalues();
+		ArrayList<EigenValue> eig = new ArrayList<EigenValue>();
+		for (int i = 0; i < vals.length; ++i)
+			eig.add(new EigenValue(vals[i]));
+
+		Matrix vectors = m.eig().getV();
+		for (int i = 0; i < vals.length; ++i)
+			eig.get(i).setVector(vectors, i);
+
+		Collections.sort(eig);
+		Collections.reverse(eig);
+		return eig;
+	}
+
+	// wartoœci i wektory w³asne ponad zadanym progiem
+	public ArrayList<EigenValue> computeEigenValues(
+			ArrayList<EigenValue> inputValues, double threshold) {
+		ArrayList<EigenValue> output = new ArrayList<EigenValue>();
+
+		double sum = 0, cumulativeSum = 0;
+
+		for (int i = 0; i < inputValues.size(); ++i)
+			sum += inputValues.get(i).getValue();
+
+		for (int i = 0; i < inputValues.size(); ++i) {
+			cumulativeSum += inputValues.get(i).getValue();
+			output.add(inputValues.get(i));
+			if (cumulativeSum * 100 / sum >= threshold)
+				break;
+		}
+		return output;
 	}
 
 	//
