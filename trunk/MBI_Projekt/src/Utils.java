@@ -53,7 +53,7 @@ public class Utils {
 	}
 
 	public static void displayMatrix(Matrix matrix) {
-		matrix.print(matrix.getColumnDimension(), 0);
+		matrix.print(matrix.getColumnDimension(), matrix.getRowDimension());
 	}
 
 	public static double[] reverse(double[] arr) {

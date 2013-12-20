@@ -11,7 +11,14 @@ public class MatrixOperations {
 		matrix = Utils.getInputCSVData(fileName);
 	}
 
-	/* TODO */
+	public void run(String out, boolean corelation, double threshold) {
+		if (corelation) {
+			Matrix m = computePCA2(threshold);
+			Utils.displayMatrix(m);
+		}
+	}
+
+	// u¿ywaj¹c macierzy kowariancji
 	public Matrix computePCA() {
 		Matrix finalMatrix = null;
 		Matrix m = covarianceMatrix(matrix);
@@ -19,12 +26,26 @@ public class MatrixOperations {
 		return finalMatrix;
 	}
 
+	// u¿ywaj¹c macierzy korelacji
 	public Matrix computePCA2(double threshold) {
-		Matrix finalMatrix = null;
-		Matrix m = corelationMatrix(matrix);
+		Matrix m = matrix.copy();
+		m = corelationMatrix(m);
 		ArrayList<EigenValue> eig = computeEigenValues(m);
+		eig = computeEigenValues(eig, threshold);
+		m = createResults(eig);
+		return cast(matrix, m);
+	}
 
-		return finalMatrix;
+	public Matrix cast(Matrix input, Matrix vectors) {
+		return input.times(vectors.transpose());
+	}
+
+	public Matrix createResults(ArrayList<EigenValue> eig) {
+		double[][] mat = new double[eig.size()][eig.get(0).getVector().length];
+
+		for (int i = 0; i < eig.size(); ++i)
+			mat[i] = eig.get(i).getVector();
+		return new Matrix(mat);
 	}
 
 	public double[] getAvgRows(Matrix matrix) {
@@ -126,7 +147,7 @@ public class MatrixOperations {
 		return resultMatrix;
 	}
 
-	// wyznaczanie wartoœci i wektoró w³asnych
+	// wyznaczanie wartoœci i wektorów w³asnych
 	public ArrayList<EigenValue> computeEigenValues(Matrix m) {
 		double[] vals = m.eig().getRealEigenvalues();
 		ArrayList<EigenValue> eig = new ArrayList<EigenValue>();
