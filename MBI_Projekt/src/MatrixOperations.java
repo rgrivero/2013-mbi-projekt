@@ -1,46 +1,86 @@
 import java.util.ArrayList;
 import java.util.Collections;
 
-import Jama.EigenvalueDecomposition;
 import Jama.Matrix;
 
+/**
+ *
+ *
+ */
 public class MatrixOperations {
 	Matrix matrix;
 
+	/**
+	 * Konstruktor
+	 * 
+	 * @param fileName
+	 *            - plik z danymi wejœciowymi
+	 */
 	public MatrixOperations(String fileName) {
 		matrix = Utils.getInputCSVData(fileName);
 	}
 
+	/**
+	 * Uruchamia mechanizm redukcji wymiarów
+	 * 
+	 * @param out
+	 *            - nazwa pliku wyjœciowego
+	 * @param corelation
+	 *            - czy u¿ywaæ macierzy korelacji zamiast kowariancji
+	 * @param threshold
+	 *            - próg (procentowy) pokrycia minimalnej skumulowanej
+	 *            zmiennosci danych
+	 */
 	public void run(String out, boolean corelation, double threshold) {
-		if (corelation) {
-			Matrix m = computePCA2(threshold);
-			Utils.displayMatrix(m);
-		}
+
+		Matrix m = computePca(threshold, corelation);
+		Utils.displayMatrix(m);
+		Utils.saveMatrix(m, out);
 	}
 
-	// u¿ywaj¹c macierzy kowariancji
-	public Matrix computePCA() {
-		Matrix finalMatrix = null;
-		Matrix m = covarianceMatrix(matrix);
-		EigenvalueDecomposition ed = m.eig();
-		return finalMatrix;
-	}
-
-	// u¿ywaj¹c macierzy korelacji
-	public Matrix computePCA2(double threshold) {
-		Matrix m = matrix.copy();
-		m = corelationMatrix(m);
+	/**
+	 * Oblicza nowe wartoœci wspó³czynników
+	 * 
+	 * @param threshold
+	 *            - próg procentowy do wyboru wartoœci w³asnych
+	 * @param corelation
+	 *            - czy u¿ywaæ macierzy korelacji zamiast kowariancji
+	 * @return
+	 */
+	public Matrix computePca(double threshold, boolean corelation) {
+		Matrix m = corelation ? corelationMatrix(matrix.copy())
+				: covarianceMatrix(matrix.copy());
 		ArrayList<EigenValue> eig = computeEigenValues(m);
 		eig = computeEigenValues(eig, threshold);
 		m = createResults(eig);
 		return cast(matrix, m);
 	}
 
+	/**
+	 * Rzutowanie wartoœci danych wejœciowych na przestrzeñ nowych atrybutów
+	 * (mno¿enie macierzy)
+	 * 
+	 * @param input
+	 *            - dane wejœciowe
+	 * @param vectors
+	 *            - wspó³czynniki nowych atrybutów
+	 * @return
+	 */
 	public Matrix cast(Matrix input, Matrix vectors) {
+		Utils.log("Cast input matrix into new attributes");
 		return input.times(vectors.transpose());
 	}
 
+	/**
+	 * Tworzenie macierzy wspó³czynników nowych atrybutów na podstawie listy
+	 * wektorów w³asnych
+	 * 
+	 * @param eig
+	 *            - lista wektorów w³asnych
+	 * @return - macierz wspó³czynników do wyliczania nowych wartoœci atrybutów
+	 */
 	public Matrix createResults(ArrayList<EigenValue> eig) {
+		Utils.log("Create matrix from list of eigen vectors");
 		double[][] mat = new double[eig.size()][eig.get(0).getVector().length];
 
 		for (int i = 0; i < eig.size(); ++i)
@@ -48,7 +88,15 @@ public class MatrixOperations {
 		return new Matrix(mat);
 	}
 
+	/**
+	 * Wyliczanie œrednich wartoœci w wierszach
+	 * 
+	 * @param matrix
+	 *            - macierz wejœciowa
+	 * @return - wektor ze œrednimi
+	 */
 	public double[] getAvgRows(Matrix matrix) {
+		Utils.log("Compute average values for rows");
 		int rows = matrix.getRowDimension();
 		int cols = matrix.getColumnDimension();
 
@@ -65,7 +113,15 @@ public class MatrixOperations {
 		return vector;
 	}
 
+	/**
+	 * Wyliczanie œrednich wartoœci w kolumnach
+	 * 
+	 * @param matrix
+	 *            - macierz wejœciowa
+	 * @return wektor ze œrednimi
+	 */
 	public double[] getAvgCols(Matrix matrix) {
+		Utils.log("Compute average values for cols");
 		int rows = matrix.getRowDimension();
 		int cols = matrix.getColumnDimension();
 
@@ -82,7 +138,17 @@ public class MatrixOperations {
 		return vector;
 	}
 
+	/**
+	 * Odejmowanie od aktualnych wartoœci wartoœci œrednich w kolumnach
+	 * 
+	 * @param matrix
+	 *            - macierz wejœciowa
+	 * @param vector
+	 *            - wektor ze œrednimi w kolumnach
+	 * @return
+	 */
 	public Matrix subtractAvgValues(Matrix matrix, double[] vector) {
+		Utils.log("Subtract average values from current values");
 		int rows = matrix.getRowDimension();
 		int cols = matrix.getColumnDimension();
 
@@ -93,7 +159,15 @@ public class MatrixOperations {
 		return matrix;
 	}
 
+	/**
+	 * Wyznaczanie macierzy kowariancji
+	 * 
+	 * @param inputMatrix
+	 *            - macierz wejœciowa
+	 * @return macierz kowariancji
+	 */
 	public Matrix covarianceMatrix(Matrix inputMatrix) {
+		Utils.log("Compute covariance matrix");
 		// int cols = inputMatrix.getColumnDimension();
 
 		double[] means = getAvgCols(inputMatrix);
@@ -116,7 +190,15 @@ public class MatrixOperations {
 	}
 
 	// macierz sum iloczynów kolumn
+	/**
+	 * Wyznaczanie macierzy sumy iloczynów wartoœci w kolumnach przemno¿onych
+	 * przez 1/(n-1)
+	 * 
+	 * @param inputMatrix
+	 * @return
+	 */
 	public Matrix sumOfSquaredMatrix(Matrix inputMatrix) {
+		Utils.log("Compute matrix from sum of squared values");
 		// srednie
 		double[] means = getAvgCols(inputMatrix);
 		// odejmujemy srednie od wartosci
@@ -129,8 +211,15 @@ public class MatrixOperations {
 		return resultMatrix.times(n);
 	}
 
-	// wyznaczanie macierzy korelacji
+	/**
+	 * Wyznaczanie macierzy korelacji
+	 * 
+	 * @param inputMatrix
+	 *            - macierz wejœciowa
+	 * @return
+	 */
 	public Matrix corelationMatrix(Matrix inputMatrix) {
+		Utils.log("Compute corelation matrix");
 		Matrix sum = sumOfSquaredMatrix(inputMatrix);
 		int cols = sum.getColumnDimension();
 		Matrix resultMatrix = Matrix.identity(cols, cols);
@@ -147,8 +236,14 @@ public class MatrixOperations {
 		return resultMatrix;
 	}
 
-	// wyznaczanie wartoœci i wektorów w³asnych
+	/**
+	 * Wyznaczanie wartoœci i wektorów w³asnych
+	 * 
+	 * @param m
+	 * @return
+	 */
 	public ArrayList<EigenValue> computeEigenValues(Matrix m) {
+		Utils.log("Compute eigen values");
 		double[] vals = m.eig().getRealEigenvalues();
 		ArrayList<EigenValue> eig = new ArrayList<EigenValue>();
 		for (int i = 0; i < vals.length; ++i)
@@ -163,9 +258,16 @@ public class MatrixOperations {
 		return eig;
 	}
 
-	// wartoœci i wektory w³asne ponad zadanym progiem
+	/**
+	 * Wartoœci i wektory w³asne ponad zadanym progiem
+	 * 
+	 * @param inputValues
+	 * @param threshold
+	 * @return
+	 */
 	public ArrayList<EigenValue> computeEigenValues(
 			ArrayList<EigenValue> inputValues, double threshold) {
+		Utils.log("Choose eigen values under the threshold");
 		ArrayList<EigenValue> output = new ArrayList<EigenValue>();
 
 		double sum = 0, cumulativeSum = 0;
@@ -182,20 +284,10 @@ public class MatrixOperations {
 		return output;
 	}
 
-	//
-	public Matrix computeEigenValuesForCovMatrix(EigenvalueDecomposition ed) {
-		return ed.getD();
-	}
-
-	public Matrix computeEigenVectorForCovMatrix(EigenvalueDecomposition ed) {
-		return ed.getV();
-	}
-
+	/**
+	 * @return
+	 */
 	public Matrix getMatrix() {
 		return matrix;
-	}
-
-	public void setMatrix(Matrix matrix) {
-		this.matrix = matrix;
 	}
 }

@@ -9,12 +9,12 @@ public class UnitTests {
 
 	@org.junit.Before
 	public void testInit() {
-		operations = new MatrixOperations("testData.csv");
+		operations = new MatrixOperations("resources/input/testData.csv");
 	}
 
 	@org.junit.Test
 	public void constructorTest() {
-		operations = new MatrixOperations("testData.csv");
+		operations = new MatrixOperations("resources/input/testData.csv");
 		Assert.assertEquals(1.0, operations.matrix.get(0, 0));
 		Assert.assertEquals(5.0, operations.matrix.get(0, 1));
 		Assert.assertEquals(4.0, operations.matrix.get(0, 2));
@@ -172,7 +172,7 @@ public class UnitTests {
 	@org.junit.Test
 	public void corelationMatrixTest2() {
 
-		operations = new MatrixOperations("testData2.csv");
+		operations = new MatrixOperations("resources/input/testData2.csv");
 		Matrix results = operations.corelationMatrix(operations.matrix);
 
 		Utils.assertEqual(8, results.getColumnDimension());
@@ -336,7 +336,7 @@ public class UnitTests {
 	@org.junit.Test
 	public void eigenValueSortTest2() {
 		// przyk³adowa macierz
-		operations = new MatrixOperations("testData2.csv");
+		operations = new MatrixOperations("resources/input/testData2.csv");
 		Matrix m = operations.corelationMatrix(operations.matrix);
 
 		ArrayList<EigenValue> eig = operations.computeEigenValues(m);
@@ -356,7 +356,7 @@ public class UnitTests {
 	@org.junit.Test
 	public void computeEigenValuesWithThresholdTest() {
 
-		operations = new MatrixOperations("testData2.csv");
+		operations = new MatrixOperations("resources/input/testData2.csv");
 		Matrix m = operations.corelationMatrix(operations.matrix);
 
 		ArrayList<EigenValue> eig = operations.computeEigenValues(m);
