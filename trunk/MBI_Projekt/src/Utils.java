@@ -5,10 +5,9 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 import junit.framework.Assert;
@@ -26,7 +25,7 @@ public class Utils {
 	public static Matrix getInputCSVData(String fileName) {
 		/* Nie znamy ani liczby wierszy ani liczby kolumn */
 		ArrayList<ArrayList<Double>> matrix = new ArrayList<ArrayList<Double>>();
-
+		String parsed = "";
 		try {
 			Reader reader = new FileReader(fileName);
 			BufferedReader bufferedReader = new BufferedReader(reader);
@@ -37,9 +36,10 @@ public class Utils {
 				String[] rowStr = line.split(",");
 				ArrayList<Double> row = new ArrayList<Double>();
 
-				for (int i = 0; i < rowStr.length; i++)
+				for (int i = 0; i < rowStr.length; i++) {
+					parsed = rowStr[i];
 					row.add(Double.parseDouble(rowStr[i]));
-
+				}
 				matrix.add(row);
 			}
 
@@ -47,6 +47,7 @@ public class Utils {
 			reader.close();
 
 		} catch (Exception e) {
+			System.out.println(parsed);
 			e.printStackTrace();
 		}
 
@@ -65,6 +66,7 @@ public class Utils {
 				pomMatrix[i][j] = matrix.get(i).get(j);
 
 		Matrix jamaMatrix = new Matrix(pomMatrix);
+		// displayMatrix(jamaMatrix);
 		return jamaMatrix;
 	}
 
@@ -150,23 +152,53 @@ public class Utils {
 		return Math.round(interestedInZeroDPs) / multipicationFactor;
 	}
 
+	private static HashMap<String, Long> map = new HashMap<String, Long>();
+
 	/**
-	 * Logowanie informacji
 	 * 
-	 * @param message
 	 */
-	public static void log(String message) {
-		printTime();
-		System.out.println(":\t " + message);
+	public static void logStart() {
+		if (!DEBUG_MODE)
+			return;
+		String methodName = getMethodName(3);
+		map.put(methodName, System.currentTimeMillis());
+		System.out.println("START METHOD: " + methodName);
 	}
 
 	/**
-	 * Logowanie czasu
+	 * 
 	 */
-	private static void printTime() {
-		Calendar cal = Calendar.getInstance();
-		cal.getTime();
-		SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
-		System.out.print(sdf.format(cal.getTime()) + ":\t");
+	public static void logStop() {
+		if (!DEBUG_MODE)
+			return;
+		String methodName = getMethodName(3);
+		long time = 0;
+		if (map.containsKey(methodName))
+			time = System.currentTimeMillis() - map.get(methodName);
+		System.out.println("STOP METHOD: " + methodName + " TIME: " + time
+				+ " ms");
+	}
+
+	/**
+	 * @param depth
+	 * @return
+	 */
+	public static String getMethodName(final int depth) {
+		StackTraceElement[] stacktrace = Thread.currentThread().getStackTrace();
+		StackTraceElement e = stacktrace[depth];// coz 0th will be getStackTrace
+												// so
+		// 1st
+		String methodName = e.getMethodName();
+		return methodName;
+	}
+
+	private static boolean DEBUG_MODE = false;
+
+	public static void EnableDebugMode() {
+		DEBUG_MODE = true;
+	}
+
+	public static void DisableDebugMode() {
+		DEBUG_MODE = false;
 	}
 }

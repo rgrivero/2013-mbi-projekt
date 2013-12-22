@@ -3,7 +3,7 @@ public class Main {
 	// uruchamianie z konsoli (cmd):
 	// java -jar PCA.jar -i testData2.csv -o outData.csv -cor -t 81
 	public static void main(String[] arg0) {
-		boolean corelation = false;
+		boolean corelation = false, debug = false;
 		int input = -2, output = -2, threshold = -2;
 		String inName = null, outName = null;
 		double thresh = 80;
@@ -22,6 +22,8 @@ public class Main {
 				printHelp(false);
 			else if (options[i].equals("-cor"))
 				corelation = true;
+			else if (options[i].equals("-d"))
+				debug = true;
 			else if (input == (i - 1))
 				inName = options[i];
 			else if (output == (i - 1))
@@ -37,6 +39,12 @@ public class Main {
 		System.out.println("Output file : " + outName);
 		System.out.println("Threshold   : " + thresh + "%");
 		System.out.println("Cov/Cor     : " + (corelation ? "Cor" : "Cov"));
+		System.out.println("Debug mode  : " + debug + "\n");
+
+		if (debug)
+			Utils.EnableDebugMode();
+		else
+			Utils.DisableDebugMode();
 
 		// Tests.testLoadingMatrixFromFile("dane.csv");
 		// Tests.testAll();
@@ -51,6 +59,7 @@ public class Main {
 		System.out.println("-help     - help");
 		System.out.println("-i %file% - input file name");
 		System.out.println("-o %file% - output file name:");
+		System.out.println("-d - debug mode:");
 		System.out
 				.println("-cor      - using corelation matrix instead covariance:");
 	}

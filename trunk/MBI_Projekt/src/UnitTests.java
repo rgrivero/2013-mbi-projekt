@@ -360,10 +360,10 @@ public class UnitTests {
 		Matrix m = operations.corelationMatrix(operations.matrix);
 
 		ArrayList<EigenValue> eig = operations.computeEigenValues(m);
-		
+
 		ArrayList<EigenValue> eigRes = operations.computeEigenValues(eig, 80.0);
 		Assert.assertEquals(2, eigRes.size());
-		
+
 		eigRes = operations.computeEigenValues(eig, 10.0);
 		Assert.assertEquals(1, eigRes.size());
 
@@ -393,5 +393,51 @@ public class UnitTests {
 			sum += eig.get(i).getValue();
 
 		Utils.assertEqual(2.0, sum);
+	}
+
+	@org.junit.Test
+	public void runAllTest1() {
+		// przyk³adowa macierz
+		operations = new MatrixOperations("resources/input/testData2.csv");
+		operations.run("resources/output/out01.csv", true, 80.0);
+
+		operations = new MatrixOperations("resources/output/out01.csv");
+		Assert.assertEquals(2, operations.matrix.getColumnDimension());
+		Assert.assertEquals(11, operations.matrix.getRowDimension());
+	}
+
+	@org.junit.Test
+	public void runAllTest2() {
+		operations = new MatrixOperations("resources/input/23attr2000rows.csv");
+		operations.run("resources/output/out02.csv", true, 80.0);
+
+		operations = new MatrixOperations("resources/output/out02.csv");
+		Assert.assertEquals(12, operations.matrix.getColumnDimension());
+		Assert.assertEquals(2126, operations.matrix.getRowDimension());
+	}
+
+	@org.junit.Test
+	public void runAllTest3() {
+		operations = new MatrixOperations("resources/input/21attr540rows.csv");
+		operations.run("resources/output/out03.csv", true, 80.0);
+
+		operations = new MatrixOperations("resources/output/out03.csv");
+		Assert.assertEquals(16, operations.matrix.getColumnDimension());
+		Assert.assertEquals(540, operations.matrix.getRowDimension());
+	}
+
+	@org.junit.Test
+	public void runAllTest4() {
+		operations = new MatrixOperations("resources/input/57attr4601rows.csv");
+		operations.run("resources/output/out04.csv", true, 80.0);
+
+		operations = new MatrixOperations("resources/output/out04.csv");
+		Assert.assertEquals(35, operations.matrix.getColumnDimension());
+		Assert.assertEquals(4601, operations.matrix.getRowDimension());
+	}
+
+	@org.junit.Test
+	public void getMethodNameTest() {
+		Assert.assertEquals("getMethodNameTest", Utils.getMethodName(2));
 	}
 }
