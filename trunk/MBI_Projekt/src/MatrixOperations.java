@@ -180,7 +180,7 @@ public class MatrixOperations {
 		int resMatrixCols = resultMatrix.getColumnDimension();
 		int resMatrixRows = resultMatrix.getRowDimension();
 
-		for (int i = 0; i < resMatrixCols; i++)
+		for (int i = 0; i < resMatrixRows; i++)
 			for (int j = 0; j < resMatrixCols; j++) {
 				double value = resultMatrix.get(i, j);
 				resultMatrix.set(i, j, value / resMatrixRows);
@@ -282,6 +282,29 @@ public class MatrixOperations {
 				break;
 		}
 		return output;
+	}
+	
+	/**
+	 *  Przeksztalca liste wektorow wlasnych w macierz, gdzie 
+	 *  kazdy wiersz to osobny wektor wlasny
+	 *  @param inputValues - lista wektorow wlasnych
+	 *  @return - macierz zlozona z wketorow wlasnych
+	 */
+	public Matrix createRowFeatureMatrix(ArrayList<EigenValue> inputValues)
+	{
+		int numberOfRows = inputValues.size();
+		int numberOfCols = inputValues.get(0).getVector().length;
+		
+		Matrix featureMatrix = new Matrix(numberOfRows,numberOfCols);
+		
+		for(int i=0; i<inputValues.size(); i++)
+		{
+			double[] vector = inputValues.get(i).getVector();
+			for(int j=0; j<vector.length; j++)
+				featureMatrix.set(i, j, vector[j]);
+		}
+		
+		return featureMatrix;//.transpose();
 	}
 
 	/**

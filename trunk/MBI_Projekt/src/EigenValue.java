@@ -1,3 +1,5 @@
+import java.util.Arrays;
+
 import Jama.Matrix;
 
 /**
@@ -56,6 +58,12 @@ public class EigenValue implements Comparable<EigenValue> {
 	public int compareTo(EigenValue arg0) {
 
 		return Double.compare(this.getValue(), arg0.getValue());
+	}
+	
+	@Override
+	public String toString() {
+		return "Value=" + value + "\nvector=["
+				+ Arrays.toString(vector) + "]";
 	}
 
 }
