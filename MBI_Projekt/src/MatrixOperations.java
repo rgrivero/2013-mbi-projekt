@@ -29,12 +29,17 @@ public class MatrixOperations {
 	 *            - czy u¿ywaæ macierzy korelacji zamiast kowariancji
 	 * @param threshold
 	 *            - próg (procentowy) pokrycia minimalnej skumulowanej
-	 *            zmiennosci danych
+	 *            zmiennosci danych, lub iloœæ nowych atrybutów, w zale¿noœci od
+	 *            flagi percentageThreshold
+	 * @param percentageThreshold
+	 *            - flaga okreœlaj¹ca czy parametr threshold ma byæ u¿ywany jako
+	 *            prób procentowy (true), czy liczba nowych atrybutów (false)
 	 */
-	public void run(String out, boolean corelation, double threshold) {
+	public void run(String out, boolean corelation, double threshold,
+			boolean percentageThreshold) {
 		long startTime = System.currentTimeMillis();
 
-		Matrix m = computePca(threshold, corelation);
+		Matrix m = computePca(threshold, corelation, percentageThreshold);
 
 		long endTime = System.currentTimeMillis();
 		long totalTime = endTime - startTime;
@@ -55,11 +60,12 @@ public class MatrixOperations {
 	 *            - czy u¿ywaæ macierzy korelacji zamiast kowariancji
 	 * @return
 	 */
-	public Matrix computePca(double threshold, boolean corelation) {
+	public Matrix computePca(double threshold, boolean corelation,
+			boolean percentage) {
 		Matrix m = corelation ? corelationMatrix(matrix.copy())
 				: covarianceMatrix(matrix.copy());
 		ArrayList<EigenValue> eig = computeEigenValues(m);
-		eig = computeEigenValues(eig, threshold);
+		eig = computeEigenValues(eig, threshold, percentage);
 		m = createResults(eig);
 		return cast(matrix, m);
 	}
@@ -300,7 +306,8 @@ public class MatrixOperations {
 	 * @return
 	 */
 	public ArrayList<EigenValue> computeEigenValues(
-			ArrayList<EigenValue> inputValues, double threshold) {
+			ArrayList<EigenValue> inputValues, double threshold,
+			boolean percentage) {
 		Utils.logStart();
 		ArrayList<EigenValue> output = new ArrayList<EigenValue>();
 
@@ -309,12 +316,15 @@ public class MatrixOperations {
 		for (int i = 0; i < inputValues.size(); ++i)
 			sum += inputValues.get(i).getValue();
 
-		for (int i = 0; i < inputValues.size(); ++i) {
-			cumulativeSum += inputValues.get(i).getValue();
-			output.add(inputValues.get(i));
-			if (cumulativeSum * 100 / sum >= threshold)
-				break;
-		}
+		if (percentage)
+			for (int i = 0; i < inputValues.size(); ++i) {
+				cumulativeSum += inputValues.get(i).getValue();
+				output.add(inputValues.get(i));
+				if (cumulativeSum * 100 / sum >= threshold)
+					break;
+			}
+		else
+			output.addAll(inputValues.subList(0, (int) threshold));
 		Utils.logStop();
 		return output;
 	}
