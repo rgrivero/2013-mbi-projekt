@@ -1,5 +1,6 @@
 package unit.tests;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import junit.framework.Assert;
@@ -15,6 +16,16 @@ public class MatrixOperationsTest {
 	@org.junit.Before
 	public void testInit() {
 		operations = new MatrixOperations("resources/input/testData.csv");
+	}
+
+	@org.junit.AfterClass
+	public static void cleanUpClass() {
+		File folder = new File("resources/output/");
+		File[] files = folder.listFiles();
+		if (files != null) {
+			for (File f : files)
+				f.delete();
+		}
 	}
 
 	@org.junit.Test
@@ -196,7 +207,7 @@ public class MatrixOperationsTest {
 	@org.junit.Test
 	public void covarianceMatrixTest() {
 		Matrix results = operations.covarianceMatrix(operations.getMatrix());
-		
+
 		Utils.assertEqual(4, results.getColumnDimension());
 		Utils.assertEqual(4, results.getRowDimension());
 
