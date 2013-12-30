@@ -1,3 +1,4 @@
+package pca;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -20,9 +21,11 @@ public class Utils {
 	 * 
 	 * @param fileName
 	 * @return
+	 * @throws Exception
 	 * @throws IOException
 	 */
-	public static Matrix getInputCSVData(String fileName) {
+	public static Matrix getInputCSVData(String fileName, String separator) {
+		Utils.logStart();
 		/* Nie znamy ani liczby wierszy ani liczby kolumn */
 		ArrayList<ArrayList<Double>> matrix = new ArrayList<ArrayList<Double>>();
 		String parsed = "";
@@ -33,7 +36,7 @@ public class Utils {
 			String line = "";
 
 			while ((line = bufferedReader.readLine()) != null) {
-				String[] rowStr = line.split(",");
+				String[] rowStr = line.split(separator);
 				ArrayList<Double> row = new ArrayList<Double>();
 
 				for (int i = 0; i < rowStr.length; i++) {
@@ -48,7 +51,9 @@ public class Utils {
 
 		} catch (Exception e) {
 			System.out.println(parsed);
+			Utils.logStop();
 			e.printStackTrace();
+			return null;
 		}
 
 		int n = matrix.size();
@@ -67,6 +72,7 @@ public class Utils {
 
 		Matrix jamaMatrix = new Matrix(pomMatrix);
 		// displayMatrix(jamaMatrix);
+		Utils.logStop();
 		return jamaMatrix;
 	}
 
@@ -74,7 +80,8 @@ public class Utils {
 	 * @param matrix
 	 * @param fileName
 	 */
-	public static void saveMatrix(Matrix matrix, String fileName) {
+	public static boolean saveMatrix(Matrix matrix, String fileName) {
+		Utils.logStart();
 		try {
 			File file = new File(fileName);
 
@@ -96,7 +103,11 @@ public class Utils {
 
 		} catch (IOException e) {
 			e.printStackTrace();
+			return false;
+		} finally {
+			Utils.logStop();
 		}
+		return true;
 	}
 
 	/**
@@ -154,19 +165,24 @@ public class Utils {
 
 	private static HashMap<String, Long> map = new HashMap<String, Long>();
 
+	public static HashMap<String, Long> getMap() {
+		return map;
+	}
+
 	/**
-	 * 
+	 * Zasygnalizowanie pocz¹tku pracy metody
 	 */
 	public static void logStart() {
 		if (!DEBUG_MODE)
 			return;
 		String methodName = getMethodName(3);
 		map.put(methodName, System.currentTimeMillis());
-		System.out.println("START METHOD: " + methodName);
+		System.out.print("METHOD: " + methodName);
 	}
 
 	/**
-	 * 
+	 * Logowanie informacji o zakoñczeniu pracy metody z wypisaniem czasu jej
+	 * trwania
 	 */
 	public static void logStop() {
 		if (!DEBUG_MODE)
@@ -175,19 +191,18 @@ public class Utils {
 		long time = 0;
 		if (map.containsKey(methodName))
 			time = System.currentTimeMillis() - map.get(methodName);
-		System.out.println("STOP METHOD: " + methodName + " TIME: " + time
-				+ " ms");
+		System.out.println("\t TIME: " + time + " ms");
 	}
 
 	/**
+	 * Pobiera nazwê aktualnej metody z odpowiedniej pozycji ze stosu
+	 * 
 	 * @param depth
 	 * @return
 	 */
 	public static String getMethodName(final int depth) {
 		StackTraceElement[] stacktrace = Thread.currentThread().getStackTrace();
-		StackTraceElement e = stacktrace[depth];// coz 0th will be getStackTrace
-												// so
-		// 1st
+		StackTraceElement e = stacktrace[depth];
 		String methodName = e.getMethodName();
 		return methodName;
 	}
