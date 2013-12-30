@@ -10,6 +10,16 @@ import Jama.Matrix;
 
 public class UtilsTest {
 
+	@org.junit.AfterClass
+	public static void cleanUpClass() {
+		File folder = new File("resources/output/");
+		File[] files = folder.listFiles();
+		if (files != null) {
+			for (File f : files)
+				f.delete();
+		}
+	}
+
 	@org.junit.Test
 	public void saveMatrixTest_createNewFile() {
 		File file = new File("resources/output/notExistingFile.csv");
