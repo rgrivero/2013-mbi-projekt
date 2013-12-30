@@ -1,4 +1,5 @@
 package pca;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -28,7 +29,6 @@ public class Utils {
 		Utils.logStart();
 		/* Nie znamy ani liczby wierszy ani liczby kolumn */
 		ArrayList<ArrayList<Double>> matrix = new ArrayList<ArrayList<Double>>();
-		String parsed = "";
 		try {
 			Reader reader = new FileReader(fileName);
 			BufferedReader bufferedReader = new BufferedReader(reader);
@@ -40,7 +40,6 @@ public class Utils {
 				ArrayList<Double> row = new ArrayList<Double>();
 
 				for (int i = 0; i < rowStr.length; i++) {
-					parsed = rowStr[i];
 					row.add(Double.parseDouble(rowStr[i]));
 				}
 				matrix.add(row);
@@ -50,7 +49,6 @@ public class Utils {
 			reader.close();
 
 		} catch (Exception e) {
-			System.out.println(parsed);
 			Utils.logStop();
 			e.printStackTrace();
 			return null;
@@ -71,7 +69,6 @@ public class Utils {
 				pomMatrix[i][j] = matrix.get(i).get(j);
 
 		Matrix jamaMatrix = new Matrix(pomMatrix);
-		// displayMatrix(jamaMatrix);
 		Utils.logStop();
 		return jamaMatrix;
 	}
@@ -81,7 +78,6 @@ public class Utils {
 	 * @param fileName
 	 */
 	public static boolean saveMatrix(Matrix matrix, String fileName) {
-		Utils.logStart();
 		try {
 			File file = new File(fileName);
 
@@ -98,14 +94,9 @@ public class Utils {
 				bw.write("\n");
 			}
 			bw.close();
-
-			System.out.println("Done");
-
 		} catch (IOException e) {
 			e.printStackTrace();
 			return false;
-		} finally {
-			Utils.logStop();
 		}
 		return true;
 	}
@@ -167,6 +158,18 @@ public class Utils {
 
 	public static HashMap<String, Long> getMap() {
 		return map;
+	}
+
+	public static void savePartialResults(Matrix matrix) {
+		if (!DEBUG_MODE)
+			return;
+		String methodName = "resources/partial/" + getMethodName(3) + ".csv";
+		if (Utils.saveMatrix(matrix, methodName))
+			System.out.println("Saving partial results to: " + methodName);
+		else
+			System.out.println("FAILED saving partial results to: "
+					+ methodName);
+
 	}
 
 	/**

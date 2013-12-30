@@ -90,6 +90,7 @@ public class MatrixOperations {
 		Utils.logStart();
 		Matrix m = input.times(vectors.transpose());
 		Utils.logStop();
+		Utils.savePartialResults(m);
 		return m;
 	}
 
@@ -107,8 +108,11 @@ public class MatrixOperations {
 
 		for (int i = 0; i < eig.size(); ++i)
 			mat[i] = eig.get(i).getVector();
+		Matrix m = new Matrix(mat);
+
 		Utils.logStop();
-		return new Matrix(mat);
+		Utils.savePartialResults(m);
+		return m;
 	}
 
 	/**
@@ -119,7 +123,6 @@ public class MatrixOperations {
 	 * @return wektor ze œrednimi
 	 */
 	public double[] getAvgCols(Matrix matrix) {
-		// Utils.logStart();
 		int rows = matrix.getRowDimension();
 		int cols = matrix.getColumnDimension();
 
@@ -133,7 +136,6 @@ public class MatrixOperations {
 
 			vector[i] = sum / rows;
 		}
-		// Utils.logStop();
 		return vector;
 	}
 
@@ -147,7 +149,6 @@ public class MatrixOperations {
 	 * @return
 	 */
 	public Matrix subtractAvgValues(Matrix matrix, double[] vector) {
-		// Utils.logStart();
 		int rows = matrix.getRowDimension();
 		int cols = matrix.getColumnDimension();
 
@@ -155,7 +156,6 @@ public class MatrixOperations {
 			for (int j = 0; j < cols; j++)
 				matrix.set(i, j, matrix.get(i, j) - vector[j]);
 
-		// Utils.logStop();
 		return matrix;
 	}
 
@@ -184,6 +184,8 @@ public class MatrixOperations {
 			}
 
 		Utils.logStop();
+		Utils.savePartialResults(resultMatrix);
+
 		return resultMatrix;
 	}
 
@@ -196,7 +198,7 @@ public class MatrixOperations {
 	 * @return
 	 */
 	public Matrix sumOfSquaredMatrix(Matrix inputMatrix) {
-		// Utils.logStart();
+
 		// srednie
 		double[] means = getAvgCols(inputMatrix);
 		// odejmujemy srednie od wartosci
@@ -207,7 +209,6 @@ public class MatrixOperations {
 		Matrix resultMatrix = transposedMatrix.times(inputMatrix);
 		double n = (double) 1 / (resultMatrix.getColumnDimension() - 1);
 		Matrix m = resultMatrix.times(n);
-		// Utils.logStop();
 
 		return m;
 	}
@@ -235,6 +236,7 @@ public class MatrixOperations {
 								/ Math.sqrt(sum.get(i, i) * sum.get(j, j)));
 			}
 		Utils.logStop();
+		Utils.savePartialResults(resultMatrix);
 		return resultMatrix;
 	}
 
