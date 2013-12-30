@@ -1,3 +1,5 @@
+package pca;
+
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -16,8 +18,12 @@ public class MatrixOperations {
 	 * @param fileName
 	 *            - plik z danymi wejœciowymi
 	 */
+	public MatrixOperations(String fileName, String separator) {
+		matrix = Utils.getInputCSVData(fileName, separator);
+	}
+
 	public MatrixOperations(String fileName) {
-		matrix = Utils.getInputCSVData(fileName);
+		matrix = Utils.getInputCSVData(fileName, ",");
 	}
 
 	/**
@@ -65,9 +71,9 @@ public class MatrixOperations {
 		Matrix m = corelation ? corelationMatrix(matrix.copy())
 				: covarianceMatrix(matrix.copy());
 		ArrayList<EigenValue> eig = computeEigenValues(m);
-		eig = computeEigenValues(eig, threshold, percentage);
+		eig = chooseNewAttributes(eig, threshold, percentage);
 		m = createResults(eig);
-		return cast(matrix, m);
+		return castToMatrix(matrix, m);
 	}
 
 	/**
@@ -80,7 +86,7 @@ public class MatrixOperations {
 	 *            - wspó³czynniki nowych atrybutów
 	 * @return
 	 */
-	public Matrix cast(Matrix input, Matrix vectors) {
+	public Matrix castToMatrix(Matrix input, Matrix vectors) {
 		Utils.logStart();
 		Matrix m = input.times(vectors.transpose());
 		Utils.logStop();
@@ -106,33 +112,6 @@ public class MatrixOperations {
 	}
 
 	/**
-	 * Wyliczanie œrednich wartoœci w wierszach
-	 * 
-	 * @param matrix
-	 *            - macierz wejœciowa
-	 * @return - wektor ze œrednimi
-	 */
-	public double[] getAvgRows(Matrix matrix) {
-		Utils.logStart();
-		int rows = matrix.getRowDimension();
-		int cols = matrix.getColumnDimension();
-
-		double vector[] = new double[rows];
-
-		for (int i = 0; i < rows; i++) {
-			double sum = 0;
-
-			for (int j = 0; j < cols; j++)
-				sum += matrix.get(i, j);
-
-			vector[i] = sum / cols;
-		}
-
-		Utils.logStop();
-		return vector;
-	}
-
-	/**
 	 * Wyliczanie œrednich wartoœci w kolumnach
 	 * 
 	 * @param matrix
@@ -140,7 +119,7 @@ public class MatrixOperations {
 	 * @return wektor ze œrednimi
 	 */
 	public double[] getAvgCols(Matrix matrix) {
-		Utils.logStart();
+		// Utils.logStart();
 		int rows = matrix.getRowDimension();
 		int cols = matrix.getColumnDimension();
 
@@ -154,7 +133,7 @@ public class MatrixOperations {
 
 			vector[i] = sum / rows;
 		}
-		Utils.logStop();
+		// Utils.logStop();
 		return vector;
 	}
 
@@ -168,7 +147,7 @@ public class MatrixOperations {
 	 * @return
 	 */
 	public Matrix subtractAvgValues(Matrix matrix, double[] vector) {
-		Utils.logStart();
+		// Utils.logStart();
 		int rows = matrix.getRowDimension();
 		int cols = matrix.getColumnDimension();
 
@@ -176,7 +155,7 @@ public class MatrixOperations {
 			for (int j = 0; j < cols; j++)
 				matrix.set(i, j, matrix.get(i, j) - vector[j]);
 
-		Utils.logStop();
+		// Utils.logStop();
 		return matrix;
 	}
 
@@ -189,14 +168,11 @@ public class MatrixOperations {
 	 */
 	public Matrix covarianceMatrix(Matrix inputMatrix) {
 		Utils.logStart();
-		// int cols = inputMatrix.getColumnDimension();
 
 		double[] means = getAvgCols(inputMatrix);
 		subtractAvgValues(inputMatrix, means);
 
-		Matrix transposedMatrix = inputMatrix.transpose();
-
-		Matrix resultMatrix = inputMatrix.times(transposedMatrix);
+		Matrix resultMatrix = inputMatrix.transpose().times(inputMatrix);
 
 		int resMatrixCols = resultMatrix.getColumnDimension();
 		int resMatrixRows = resultMatrix.getRowDimension();
@@ -206,8 +182,8 @@ public class MatrixOperations {
 				double value = resultMatrix.get(i, j);
 				resultMatrix.set(i, j, value / resMatrixRows);
 			}
-		Utils.logStop();
 
+		Utils.logStop();
 		return resultMatrix;
 	}
 
@@ -220,7 +196,7 @@ public class MatrixOperations {
 	 * @return
 	 */
 	public Matrix sumOfSquaredMatrix(Matrix inputMatrix) {
-		Utils.logStart();
+		// Utils.logStart();
 		// srednie
 		double[] means = getAvgCols(inputMatrix);
 		// odejmujemy srednie od wartosci
@@ -231,7 +207,7 @@ public class MatrixOperations {
 		Matrix resultMatrix = transposedMatrix.times(inputMatrix);
 		double n = (double) 1 / (resultMatrix.getColumnDimension() - 1);
 		Matrix m = resultMatrix.times(n);
-		Utils.logStop();
+		// Utils.logStop();
 
 		return m;
 	}
@@ -270,30 +246,19 @@ public class MatrixOperations {
 	 */
 	public ArrayList<EigenValue> computeEigenValues(Matrix m) {
 		Utils.logStart();
+
 		double[] vals = m.eig().getRealEigenvalues();
-		Utils.logStop();
-
-		Utils.logStart();
-		ArrayList<EigenValue> eig = new ArrayList<EigenValue>();
-		for (int i = 0; i < vals.length; ++i)
-			eig.add(new EigenValue(vals[i]));
-		Utils.logStop();
-
-		Utils.logStart();
 		Matrix vectors = m.eig().getV();
-		Utils.logStop();
 
-		Utils.logStart();
-		for (int i = 0; i < vals.length; ++i)
+		ArrayList<EigenValue> eig = new ArrayList<EigenValue>();
+		for (int i = 0; i < vals.length; ++i) {
+			eig.add(new EigenValue(vals[i]));
 			eig.get(i).setVector(vectors, i);
-		Utils.logStop();
+		}
 
-		Utils.logStart();
 		Collections.sort(eig);
-		Utils.logStop();
-
-		Utils.logStart();
 		Collections.reverse(eig);
+
 		Utils.logStop();
 		return eig;
 	}
@@ -305,7 +270,7 @@ public class MatrixOperations {
 	 * @param threshold
 	 * @return
 	 */
-	public ArrayList<EigenValue> computeEigenValues(
+	public ArrayList<EigenValue> chooseNewAttributes(
 			ArrayList<EigenValue> inputValues, double threshold,
 			boolean percentage) {
 		Utils.logStart();
@@ -327,29 +292,6 @@ public class MatrixOperations {
 			output.addAll(inputValues.subList(0, (int) threshold));
 		Utils.logStop();
 		return output;
-	}
-
-	/**
-	 * Przeksztalca liste wektorow wlasnych w macierz, gdzie kazdy wiersz to
-	 * osobny wektor wlasny
-	 * 
-	 * @param inputValues
-	 *            - lista wektorow wlasnych
-	 * @return - macierz zlozona z wketorow wlasnych
-	 */
-	public Matrix createRowFeatureMatrix(ArrayList<EigenValue> inputValues) {
-		int numberOfRows = inputValues.size();
-		int numberOfCols = inputValues.get(0).getVector().length;
-
-		Matrix featureMatrix = new Matrix(numberOfRows, numberOfCols);
-
-		for (int i = 0; i < inputValues.size(); i++) {
-			double[] vector = inputValues.get(i).getVector();
-			for (int j = 0; j < vector.length; j++)
-				featureMatrix.set(i, j, vector[j]);
-		}
-
-		return featureMatrix;// .transpose();
 	}
 
 	/**

@@ -1,3 +1,7 @@
+package main;
+import pca.MatrixOperations;
+import pca.Utils;
+
 public class Main {
 
 	static boolean corelation = false, debug = false;

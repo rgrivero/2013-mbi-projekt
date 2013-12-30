@@ -1,4 +1,4 @@
-import java.util.Arrays;
+package pca;
 
 import Jama.Matrix;
 
@@ -16,13 +16,6 @@ public class EigenValue implements Comparable<EigenValue> {
 	 */
 	public double getValue() {
 		return value;
-	}
-
-	/**
-	 * @param value
-	 */
-	public void setValue(double value) {
-		this.value = value;
 	}
 
 	/**
@@ -59,11 +52,4 @@ public class EigenValue implements Comparable<EigenValue> {
 
 		return Double.compare(this.getValue(), arg0.getValue());
 	}
-	
-	@Override
-	public String toString() {
-		return "Value=" + value + "\nvector=["
-				+ Arrays.toString(vector) + "]";
-	}
-
 }

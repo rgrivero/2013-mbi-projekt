@@ -1,9 +1,14 @@
+package unit.tests;
+
 import java.util.ArrayList;
 
 import junit.framework.Assert;
+import pca.EigenValue;
+import pca.MatrixOperations;
+import pca.Utils;
 import Jama.Matrix;
 
-public class UnitTests {
+public class MatrixOperationsTest {
 
 	MatrixOperations operations;
 
@@ -15,23 +20,31 @@ public class UnitTests {
 	@org.junit.Test
 	public void constructorTest() {
 		operations = new MatrixOperations("resources/input/testData.csv");
-		Assert.assertEquals(1.0, operations.matrix.get(0, 0));
-		Assert.assertEquals(5.0, operations.matrix.get(0, 1));
-		Assert.assertEquals(4.0, operations.matrix.get(0, 2));
-		Assert.assertEquals(1.0, operations.matrix.get(0, 3));
-		Assert.assertEquals(3.0, operations.matrix.get(1, 0));
-		Assert.assertEquals(3.0, operations.matrix.get(1, 1));
-		Assert.assertEquals(0.0, operations.matrix.get(1, 2));
-		Assert.assertEquals(2.0, operations.matrix.get(1, 3));
-		Assert.assertEquals(6.0, operations.matrix.get(2, 0));
-		Assert.assertEquals(1.0, operations.matrix.get(2, 1));
-		Assert.assertEquals(1.0, operations.matrix.get(2, 2));
-		Assert.assertEquals(9.0, operations.matrix.get(2, 3));
+		Assert.assertEquals(1.0, operations.getMatrix().get(0, 0));
+		Assert.assertEquals(5.0, operations.getMatrix().get(0, 1));
+		Assert.assertEquals(4.0, operations.getMatrix().get(0, 2));
+		Assert.assertEquals(1.0, operations.getMatrix().get(0, 3));
+		Assert.assertEquals(3.0, operations.getMatrix().get(1, 0));
+		Assert.assertEquals(3.0, operations.getMatrix().get(1, 1));
+		Assert.assertEquals(0.0, operations.getMatrix().get(1, 2));
+		Assert.assertEquals(2.0, operations.getMatrix().get(1, 3));
+		Assert.assertEquals(6.0, operations.getMatrix().get(2, 0));
+		Assert.assertEquals(1.0, operations.getMatrix().get(2, 1));
+		Assert.assertEquals(1.0, operations.getMatrix().get(2, 2));
+		Assert.assertEquals(9.0, operations.getMatrix().get(2, 3));
+	}
+
+	@org.junit.Test
+	public void constructorTest_fileNotExists() {
+		// exception stack trace should be printed
+		operations = new MatrixOperations(
+				"resources/input/notExistingFile.csv", ";");
+		Assert.assertNull(operations.getMatrix());
 	}
 
 	@org.junit.Test
 	public void getAvgColsTest() {
-		double[] results = operations.getAvgCols(operations.matrix);
+		double[] results = operations.getAvgCols(operations.getMatrix());
 
 		Assert.assertEquals(4, results.length);
 		Assert.assertEquals((double) 10 / 3, results[0]);
@@ -42,45 +55,56 @@ public class UnitTests {
 
 	@org.junit.Test
 	public void subtractAvgValuesTest() {
-		double[] results = operations.getAvgCols(operations.matrix);
-		operations.subtractAvgValues(operations.matrix, results);
+		double[] results = operations.getAvgCols(operations.getMatrix());
+		operations.subtractAvgValues(operations.getMatrix(), results);
 
-		// Assert.assertEquals(1.0 - (double)10/3, operations.matrix.get(0, 0));
-		// Assert.assertEquals(5.0 - 3.0, operations.matrix.get(0, 1));
-		// Assert.assertEquals(4.0 - (double)5/3, operations.matrix.get(0, 2));
-		// Assert.assertEquals(1.0 - 4.0, operations.matrix.get(0, 3));
-		// Assert.assertEquals(3.0 - (double)10/3, operations.matrix.get(1, 0));
-		// Assert.assertEquals(3.0 - 3.0, operations.matrix.get(1, 1));
-		// Assert.assertEquals(0.0 - (double)5/3, operations.matrix.get(1, 2));
-		// Assert.assertEquals(2.0 - 4.0, operations.matrix.get(1, 3));
-		// Assert.assertEquals(6.0 - (double)10/3, operations.matrix.get(2, 0));
-		// Assert.assertEquals(1.0 - 3.0, operations.matrix.get(2, 1));
-		// Assert.assertEquals(1.0 - (double)5/3, operations.matrix.get(2, 2));
-		// Assert.assertEquals(9.0 - 4.0, operations.matrix.get(2, 3));
+		// Assert.assertEquals(1.0 - (double)10/3, operations.getMatrix().get(0,
+		// 0));
+		// Assert.assertEquals(5.0 - 3.0, operations.getMatrix().get(0, 1));
+		// Assert.assertEquals(4.0 - (double)5/3, operations.getMatrix().get(0,
+		// 2));
+		// Assert.assertEquals(1.0 - 4.0, operations.getMatrix().get(0, 3));
+		// Assert.assertEquals(3.0 - (double)10/3, operations.getMatrix().get(1,
+		// 0));
+		// Assert.assertEquals(3.0 - 3.0, operations.getMatrix().get(1, 1));
+		// Assert.assertEquals(0.0 - (double)5/3, operations.getMatrix().get(1,
+		// 2));
+		// Assert.assertEquals(2.0 - 4.0, operations.getMatrix().get(1, 3));
+		// Assert.assertEquals(6.0 - (double)10/3, operations.getMatrix().get(2,
+		// 0));
+		// Assert.assertEquals(1.0 - 3.0, operations.getMatrix().get(2, 1));
+		// Assert.assertEquals(1.0 - (double)5/3, operations.getMatrix().get(2,
+		// 2));
+		// Assert.assertEquals(9.0 - 4.0, operations.getMatrix().get(2, 3));
 
-		Assert.assertEquals(-2.3333333333333335, operations.matrix.get(0, 0));
-		Assert.assertEquals(2.0, operations.matrix.get(0, 1));
-		Assert.assertEquals(2.333333333333333, operations.matrix.get(0, 2));
-		Assert.assertEquals(-3.0, operations.matrix.get(0, 3));
-		Assert.assertEquals(-0.3333333333333335, operations.matrix.get(1, 0));
-		Assert.assertEquals(0.0, operations.matrix.get(1, 1));
-		Assert.assertEquals(-1.6666666666666667, operations.matrix.get(1, 2));
-		Assert.assertEquals(-2.0, operations.matrix.get(1, 3));
-		Assert.assertEquals(2.6666666666666665, operations.matrix.get(2, 0));
-		Assert.assertEquals(-2.0, operations.matrix.get(2, 1));
-		Assert.assertEquals(-0.6666666666666667, operations.matrix.get(2, 2));
-		Assert.assertEquals(5.0, operations.matrix.get(2, 3));
+		Assert.assertEquals(-2.3333333333333335,
+				operations.getMatrix().get(0, 0));
+		Assert.assertEquals(2.0, operations.getMatrix().get(0, 1));
+		Assert.assertEquals(2.333333333333333, operations.getMatrix().get(0, 2));
+		Assert.assertEquals(-3.0, operations.getMatrix().get(0, 3));
+		Assert.assertEquals(-0.3333333333333335,
+				operations.getMatrix().get(1, 0));
+		Assert.assertEquals(0.0, operations.getMatrix().get(1, 1));
+		Assert.assertEquals(-1.6666666666666667,
+				operations.getMatrix().get(1, 2));
+		Assert.assertEquals(-2.0, operations.getMatrix().get(1, 3));
+		Assert.assertEquals(2.6666666666666665, operations.getMatrix()
+				.get(2, 0));
+		Assert.assertEquals(-2.0, operations.getMatrix().get(2, 1));
+		Assert.assertEquals(-0.6666666666666667,
+				operations.getMatrix().get(2, 2));
+		Assert.assertEquals(5.0, operations.getMatrix().get(2, 3));
 	}
 
 	@org.junit.Test
 	public void sumOfSquaredMatrixTest() {
-		Matrix results = operations.sumOfSquaredMatrix(operations.matrix);
+		Matrix results = operations.sumOfSquaredMatrix(operations.getMatrix());
 
 		Assert.assertEquals(4, results.getColumnDimension());
 		Assert.assertEquals(4, results.getRowDimension());
 
 		double n = (double) 1 / 3;
-		Matrix m = operations.matrix;
+		Matrix m = operations.getMatrix();
 
 		Assert.assertEquals(
 				(Math.pow(m.get(0, 0), 2) + Math.pow(m.get(1, 0), 2) + Math
@@ -146,7 +170,7 @@ public class UnitTests {
 
 	@org.junit.Test
 	public void corelationMatrixTest() {
-		Matrix results = operations.corelationMatrix(operations.matrix);
+		Matrix results = operations.corelationMatrix(operations.getMatrix());
 
 		Utils.assertEqual(4, results.getColumnDimension());
 		Utils.assertEqual(4, results.getRowDimension());
@@ -170,10 +194,38 @@ public class UnitTests {
 	}
 
 	@org.junit.Test
+	public void covarianceMatrixTest() {
+		Matrix results = operations.covarianceMatrix(operations.getMatrix());
+		
+		Utils.assertEqual(4, results.getColumnDimension());
+		Utils.assertEqual(4, results.getRowDimension());
+
+		Utils.assertEqual(3.17, results.get(0, 0));
+		Utils.assertEqual(-2.5, results.get(0, 1));
+		Utils.assertEqual(-1.67, results.get(0, 2));
+		Utils.assertEqual(5.25, results.get(0, 3));
+
+		Utils.assertEqual(-2.50, results.get(1, 0));
+		Utils.assertEqual(2.0, results.get(1, 1));
+		Utils.assertEqual(1.5, results.get(1, 2));
+		Utils.assertEqual(-4.00, results.get(1, 3));
+
+		Utils.assertEqual(-1.67, results.get(2, 0));
+		Utils.assertEqual(1.50, results.get(2, 1));
+		Utils.assertEqual(2.17, results.get(2, 2));
+		Utils.assertEqual(-1.75, results.get(2, 3));
+
+		Utils.assertEqual(5.25, results.get(3, 0));
+		Utils.assertEqual(-4.0, results.get(3, 1));
+		Utils.assertEqual(-1.75, results.get(3, 2));
+		Utils.assertEqual(9.5, results.get(3, 3));
+	}
+
+	@org.junit.Test
 	public void corelationMatrixTest2() {
 
 		operations = new MatrixOperations("resources/input/testData2.csv");
-		Matrix results = operations.corelationMatrix(operations.matrix);
+		Matrix results = operations.corelationMatrix(operations.getMatrix());
 
 		Utils.assertEqual(8, results.getColumnDimension());
 		Utils.assertEqual(8, results.getRowDimension());
@@ -225,82 +277,6 @@ public class UnitTests {
 	}
 
 	@org.junit.Test
-	public void reverseTest() {
-		double[] array = new double[] { 5, 3, 2, 1, 6 };
-
-		array = Utils.reverse(array);
-
-		Utils.assertEqual(6, array[0]);
-		Utils.assertEqual(1, array[1]);
-		Utils.assertEqual(2, array[2]);
-		Utils.assertEqual(3, array[3]);
-		Utils.assertEqual(5, array[4]);
-	}
-
-	@org.junit.Test
-	public void eigenvaluesTest() {
-
-		// przyk³adowa macierz
-		Matrix m = new Matrix(3, 3);
-		m.set(0, 0, 1);
-		m.set(0, 1, 2);
-		m.set(0, 2, 0);
-		m.set(1, 0, 0);
-		m.set(1, 1, 2);
-		m.set(1, 2, 0);
-		m.set(2, 0, -2);
-		m.set(2, 1, -2);
-		m.set(2, 2, -1);
-
-		m.print(3, 2);
-
-		// wartoœci w³asne (maj¹ byæ 3)
-		double[] vals = m.eig().getRealEigenvalues();
-		Assert.assertEquals(3, vals.length);
-
-		// Arrays.sort(vals);
-		// vals = Utils.reverse(vals);
-
-		ArrayList<EigenValue> eig = new ArrayList<EigenValue>();
-
-		for (int i = 0; i < vals.length; ++i)
-			eig.add(new EigenValue(vals[i]));
-
-		// sprawdzenie
-		Utils.assertEqual(1.0, vals[0]);
-		Utils.assertEqual(-1.0, vals[1]);
-		Utils.assertEqual(2.0, vals[2]);
-
-		// czy faktycznie wyznacznik dla nich jest = 0
-		Utils.assertEqual(0, m.minus(Matrix.identity(3, 3).times(vals[0]))
-				.det());
-		Utils.assertEqual(0, m.minus(Matrix.identity(3, 3).times(vals[1]))
-				.det());
-		Utils.assertEqual(0, m.minus(Matrix.identity(3, 3).times(vals[2]))
-				.det());
-
-		// wektory w³asne (w kolumnach)
-		Matrix vectors = m.eig().getV();
-		Assert.assertEquals(3, vectors.getColumnDimension());
-		Assert.assertEquals(3, vectors.getRowDimension());
-
-		vectors.print(3, 2);
-
-		Utils.assertEqual(0.71, vectors.get(0, 0));
-		Utils.assertEqual(0, vectors.get(0, 1));
-		Utils.assertEqual(-2.0, vectors.get(0, 2));
-
-		Utils.assertEqual(0, vectors.get(1, 0));
-		Utils.assertEqual(0, vectors.get(1, 1));
-		Utils.assertEqual(-1.0, vectors.get(1, 2));
-
-		Utils.assertEqual(-0.71, vectors.get(2, 0));
-		Utils.assertEqual(-1.41, vectors.get(2, 1));
-		Utils.assertEqual(2.0, vectors.get(2, 2));
-
-	}
-
-	@org.junit.Test
 	public void eigenValueSortTest() {
 		// przyk³adowa macierz
 		Matrix m = new Matrix(3, 3);
@@ -337,7 +313,7 @@ public class UnitTests {
 	public void eigenValueSortTest2() {
 		// przyk³adowa macierz
 		operations = new MatrixOperations("resources/input/testData2.csv");
-		Matrix m = operations.corelationMatrix(operations.matrix);
+		Matrix m = operations.corelationMatrix(operations.getMatrix());
 
 		ArrayList<EigenValue> eig = operations.computeEigenValues(m);
 
@@ -357,18 +333,18 @@ public class UnitTests {
 	public void computeEigenValuesWithThresholdTest() {
 
 		operations = new MatrixOperations("resources/input/testData2.csv");
-		Matrix m = operations.corelationMatrix(operations.matrix);
+		Matrix m = operations.corelationMatrix(operations.getMatrix());
 
 		ArrayList<EigenValue> eig = operations.computeEigenValues(m);
 
-		ArrayList<EigenValue> eigRes = operations.computeEigenValues(eig, 80.0,
-				true);
+		ArrayList<EigenValue> eigRes = operations.chooseNewAttributes(eig,
+				80.0, true);
 		Assert.assertEquals(2, eigRes.size());
 
-		eigRes = operations.computeEigenValues(eig, 10.0, true);
+		eigRes = operations.chooseNewAttributes(eig, 10.0, true);
 		Assert.assertEquals(1, eigRes.size());
 
-		eigRes = operations.computeEigenValues(eig, 100.0, true);
+		eigRes = operations.chooseNewAttributes(eig, 100.0, true);
 		Assert.assertEquals(7, eigRes.size());
 	}
 
@@ -403,8 +379,8 @@ public class UnitTests {
 		operations.run("resources/output/out01.csv", true, 80.0, true);
 
 		operations = new MatrixOperations("resources/output/out01.csv");
-		Assert.assertEquals(2, operations.matrix.getColumnDimension());
-		Assert.assertEquals(11, operations.matrix.getRowDimension());
+		Assert.assertEquals(2, operations.getMatrix().getColumnDimension());
+		Assert.assertEquals(11, operations.getMatrix().getRowDimension());
 	}
 
 	@org.junit.Test
@@ -413,8 +389,8 @@ public class UnitTests {
 		operations.run("resources/output/out02.csv", true, 80.0, true);
 
 		operations = new MatrixOperations("resources/output/out02.csv");
-		Assert.assertEquals(12, operations.matrix.getColumnDimension());
-		Assert.assertEquals(2126, operations.matrix.getRowDimension());
+		Assert.assertEquals(12, operations.getMatrix().getColumnDimension());
+		Assert.assertEquals(2126, operations.getMatrix().getRowDimension());
 	}
 
 	@org.junit.Test
@@ -423,8 +399,8 @@ public class UnitTests {
 		operations.run("resources/output/out03.csv", true, 80.0, true);
 
 		operations = new MatrixOperations("resources/output/out03.csv");
-		Assert.assertEquals(16, operations.matrix.getColumnDimension());
-		Assert.assertEquals(540, operations.matrix.getRowDimension());
+		Assert.assertEquals(16, operations.getMatrix().getColumnDimension());
+		Assert.assertEquals(540, operations.getMatrix().getRowDimension());
 	}
 
 	@org.junit.Test
@@ -433,14 +409,40 @@ public class UnitTests {
 		operations.run("resources/output/out04.csv", true, 80.0, true);
 
 		operations = new MatrixOperations("resources/output/out04.csv");
-		Assert.assertEquals(35, operations.matrix.getColumnDimension());
-		Assert.assertEquals(4601, operations.matrix.getRowDimension());
+		Assert.assertEquals(35, operations.getMatrix().getColumnDimension());
+		Assert.assertEquals(4601, operations.getMatrix().getRowDimension());
 	}
 
 	@org.junit.Test
-	public void getMethodNameTest() {
-		Assert.assertEquals("getMethodNameTest", Utils.getMethodName(2));
+	public void runAllTest5() {
+		operations = new MatrixOperations("resources/input/21attr5000rows.csv");
+		operations.run("resources/output/out05.csv", true, 80.0, true);
+
+		operations = new MatrixOperations("resources/output/out05.csv");
+		Assert.assertEquals(10, operations.getMatrix().getColumnDimension());
+		Assert.assertEquals(5000, operations.getMatrix().getRowDimension());
 	}
+
+	@org.junit.Test
+	public void runAllTest6() {
+		operations = new MatrixOperations("resources/input/500attr2001rows.csv");
+		operations.run("resources/output/out06.csv", true, 80.0, true);
+
+		operations = new MatrixOperations("resources/output/out06.csv");
+		Assert.assertEquals(295, operations.getMatrix().getColumnDimension());
+		Assert.assertEquals(2000, operations.getMatrix().getRowDimension());
+	}
+
+	// @org.junit.Test
+	// public void runAllTest7() {
+	// operations = new MatrixOperations(
+	// "resources/input/1300attr572rows.csv", ";");
+	// operations.run("resources/output/out07.csv", true, 80.0, true);
+	//
+	// operations = new MatrixOperations("resources/output/out07.csv");
+	// Assert.assertEquals(572, operations.getMatrix().getRowDimension());
+	// Assert.assertEquals(295, operations.getMatrix().getColumnDimension());
+	// }
 
 	@org.junit.Test
 	public void runWithAttributes_Test1() {
@@ -449,8 +451,8 @@ public class UnitTests {
 		operations.run("resources/output/out01.csv", true, 3, false);
 
 		operations = new MatrixOperations("resources/output/out01.csv");
-		Assert.assertEquals(3, operations.matrix.getColumnDimension());
-		Assert.assertEquals(11, operations.matrix.getRowDimension());
+		Assert.assertEquals(3, operations.getMatrix().getColumnDimension());
+		Assert.assertEquals(11, operations.getMatrix().getRowDimension());
 	}
 
 	@org.junit.Test
@@ -459,8 +461,8 @@ public class UnitTests {
 		operations.run("resources/output/out02.csv", true, 10, false);
 
 		operations = new MatrixOperations("resources/output/out02.csv");
-		Assert.assertEquals(10, operations.matrix.getColumnDimension());
-		Assert.assertEquals(2126, operations.matrix.getRowDimension());
+		Assert.assertEquals(10, operations.getMatrix().getColumnDimension());
+		Assert.assertEquals(2126, operations.getMatrix().getRowDimension());
 	}
 
 	@org.junit.Test
@@ -469,8 +471,8 @@ public class UnitTests {
 		operations.run("resources/output/out03.csv", true, 20, false);
 
 		operations = new MatrixOperations("resources/output/out03.csv");
-		Assert.assertEquals(20, operations.matrix.getColumnDimension());
-		Assert.assertEquals(540, operations.matrix.getRowDimension());
+		Assert.assertEquals(20, operations.getMatrix().getColumnDimension());
+		Assert.assertEquals(540, operations.getMatrix().getRowDimension());
 	}
 
 	@org.junit.Test
@@ -479,7 +481,7 @@ public class UnitTests {
 		operations.run("resources/output/out04.csv", true, 15, false);
 
 		operations = new MatrixOperations("resources/output/out04.csv");
-		Assert.assertEquals(15, operations.matrix.getColumnDimension());
-		Assert.assertEquals(4601, operations.matrix.getRowDimension());
+		Assert.assertEquals(15, operations.getMatrix().getColumnDimension());
+		Assert.assertEquals(4601, operations.getMatrix().getRowDimension());
 	}
 }
