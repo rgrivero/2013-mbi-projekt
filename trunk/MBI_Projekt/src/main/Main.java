@@ -98,15 +98,15 @@ public class Main {
 		if (withWaring)
 			System.out.println("Warning: Unrecognized option: " + option);
 		System.out.println("Application options:");
-		System.out.println("-help     				- help");
-		System.out.println("-i %file% 				- input file name");
-		System.out.println("-o %file% 				- output file name:");
-		System.out.println("-a %attributes_count% 	- new attributes lenght:");
+		System.out.println("-help                   - help");
+		System.out.println("-i %file%               - input file name");
+		System.out.println("-o %file%               - output file name:");
+		System.out.println("-a %attributes_count%   - new attributes lenght:");
 		System.out
-				.println("-t %threshold% 			- percentage coverage of exising dataset by new attributes:");
+				.println("-t %threshold%          - percentage coverage of exising dataset by new attributes:");
 		System.out
-				.println("-cor      				- using corelation matrix instead covariance:");
-		System.out.println("-d 						- debug mode:");
+				.println("-cor                    - using corelation matrix instead covariance:");
+		System.out.println("-d                      - debug mode:");
 		System.out.println();
 	}
 }

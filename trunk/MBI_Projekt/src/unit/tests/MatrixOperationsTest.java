@@ -360,6 +360,81 @@ public class MatrixOperationsTest {
 	}
 
 	@org.junit.Test
+	public void computeEigenVectorsTest() {
+
+		operations = new MatrixOperations("resources/input/testData2.csv");
+		Matrix m = operations.corelationMatrix(operations.getMatrix());
+
+		ArrayList<EigenValue> eig = operations.computeEigenValues(m);
+
+		ArrayList<EigenValue> eigRes = operations.chooseNewAttributes(eig,
+				80.0, true);
+		Assert.assertEquals(2, eigRes.size());
+		Utils.assertEqual(-0.34, eigRes.get(0).getVector()[0]);
+		Utils.assertEqual(0.39, eigRes.get(0).getVector()[1]);
+		Utils.assertEqual(0.07, eigRes.get(0).getVector()[2]);
+		Utils.assertEqual(0.41, eigRes.get(0).getVector()[3]);
+		Utils.assertEqual(0.41, eigRes.get(0).getVector()[4]);
+		Utils.assertEqual(0.40, eigRes.get(0).getVector()[5]);
+		Utils.assertEqual(0.23, eigRes.get(0).getVector()[6]);
+		Utils.assertEqual(0.42, eigRes.get(0).getVector()[7]);
+		
+		Utils.assertEqual(-0.48, eigRes.get(1).getVector()[0]);
+		Utils.assertEqual(-0.07, eigRes.get(1).getVector()[1]);
+		Utils.assertEqual(0.74, eigRes.get(1).getVector()[2]);
+		Utils.assertEqual(-0.22, eigRes.get(1).getVector()[3]);
+		Utils.assertEqual(-0.28, eigRes.get(1).getVector()[4]);
+		Utils.assertEqual(-0.20, eigRes.get(1).getVector()[5]);
+		Utils.assertEqual(0.20, eigRes.get(1).getVector()[6]);
+		Utils.assertEqual(0.12, eigRes.get(1).getVector()[7]);
+		
+	}
+
+	// sprawdzenie poprawnoœci wektorów w³asnych
+	@org.junit.Test
+	public void checkAreVectorsReal() {
+		operations = new MatrixOperations("resources/input/testData2.csv");
+		Matrix m = operations.corelationMatrix(operations.getMatrix());
+		ArrayList<EigenValue> eig = operations.computeEigenValues(m);
+		ArrayList<EigenValue> eigRes = operations.chooseNewAttributes(eig,
+				80.0, true);
+		
+		double [][] vectors = new double[1][8];
+		vectors[0]= eig.get(0).getVector();
+		Matrix identity = Matrix.identity(8, 8);
+		Matrix mulByValue = identity.times(eigRes.get(0).getValue());
+		Matrix partialRes = m.minus(mulByValue);
+		Matrix res = partialRes.times(new Matrix(vectors).transpose());
+		
+		Assert.assertEquals(1, res.getColumnDimension());
+		Assert.assertEquals(8, res.getRowDimension());
+		
+		Utils.assertEqual(0.0, res.get(0, 0));
+		Utils.assertEqual(0.0, res.get(1, 0));
+		Utils.assertEqual(0.0, res.get(2, 0));
+		Utils.assertEqual(0.0, res.get(3, 0));
+		Utils.assertEqual(0.0, res.get(4, 0));
+		Utils.assertEqual(0.0, res.get(5, 0));
+		Utils.assertEqual(0.0, res.get(6, 0));
+		Utils.assertEqual(0.0, res.get(7, 0));
+		
+		// sprawdzenie czy wektor o wartoœciach przeciwnych jest prawid³owy
+		res = partialRes.times(new Matrix(vectors).times(-1).transpose());
+		
+		Assert.assertEquals(1, res.getColumnDimension());
+		Assert.assertEquals(8, res.getRowDimension());
+		
+		Utils.assertEqual(0.0, res.get(0, 0));
+		Utils.assertEqual(0.0, res.get(1, 0));
+		Utils.assertEqual(0.0, res.get(2, 0));
+		Utils.assertEqual(0.0, res.get(3, 0));
+		Utils.assertEqual(0.0, res.get(4, 0));
+		Utils.assertEqual(0.0, res.get(5, 0));
+		Utils.assertEqual(0.0, res.get(6, 0));
+		Utils.assertEqual(0.0, res.get(7, 0));
+	}
+	
+	@org.junit.Test
 	public void eigenValueSumTest() {
 		// przyk³adowa macierz
 		Matrix m = new Matrix(3, 3);

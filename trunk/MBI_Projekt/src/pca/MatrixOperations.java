@@ -3,6 +3,7 @@ package pca;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import Jama.EigenvalueDecomposition;
 import Jama.Matrix;
 
 /**
@@ -249,8 +250,9 @@ public class MatrixOperations {
 	public ArrayList<EigenValue> computeEigenValues(Matrix m) {
 		Utils.logStart();
 
-		double[] vals = m.eig().getRealEigenvalues();
-		Matrix vectors = m.eig().getV();
+		EigenvalueDecomposition dec = m.eig();
+		double[] vals = dec.getRealEigenvalues();
+		Matrix vectors = dec.getV();
 
 		ArrayList<EigenValue> eig = new ArrayList<EigenValue>();
 		for (int i = 0; i < vals.length; ++i) {
